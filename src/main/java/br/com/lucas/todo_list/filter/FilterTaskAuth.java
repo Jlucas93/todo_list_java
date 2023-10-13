@@ -23,38 +23,37 @@ public class FilterTaskAuth extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, java.io.IOException {
-    // Your filter logic goes here
 
-    var auth_encoded = request.getHeader("Authorization").substring("Basic".length()).trim();
+    var request_path = request.getServletPath();
 
-    byte[] auth_decoded = Base64.getDecoder().decode(auth_encoded);
+    if (request_path.equals("/tasks/")) {
+      var auth_encoded = request.getHeader("Authorization").substring("Basic".length()).trim();
 
-    var user_string = new String(auth_decoded).split(":");
+      byte[] auth_decoded = Base64.getDecoder().decode(auth_encoded);
 
-    var user_name = user_string[0];
-    var user_password = user_string[1];
+      var user_string = new String(auth_decoded).split(":");
 
-    var user = this.userRepository.findByUserName(user_name);
-    System.out.println(user);
-    if (user == null) {
-      response.sendError(401, "Unauthorized");
-      return;
-    } else {
-      var password = BCrypt.verifyer().verify(user_password.toCharArray(), user.getPassword());
-      if (password.verified) {
+      var user_name = user_string[0];
+      var user_password = user_string[1];
 
-        filterChain.doFilter(request, response);
-      } else {
+      var user = this.userRepository.findByUserName(user_name);
+
+      if (user == null) {
         response.sendError(401, "Unauthorized");
         return;
+      } else {
+        var password = BCrypt.verifyer().verify(user_password.toCharArray(), user.getPassword());
+        if (password.verified) {
+          request.setAttribute("UserId", user.getId());
+
+          filterChain.doFilter(request, response);
+          return;
+        } else {
+          response.sendError(401, "Unauthorized");
+          return;
+        }
       }
-
     }
-
-    // if (authorization == null || authorization.equals("")) {
-    // response.sendError(401, "Unauthorized");
-    // return;
-    // }
-
+    filterChain.doFilter(request, response);
   }
 }

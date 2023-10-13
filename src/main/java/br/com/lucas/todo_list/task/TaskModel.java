@@ -23,7 +23,7 @@ public class TaskModel {
   private String title;
   private String description;
   private String priority;
-  private UUID user_id;
+  private UUID UserId;
 
   @CreationTimestamp
   private LocalDateTime created_at;
