@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.lucas</groupId>
 	<artifactId>todo_list</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>todo_list</name>
 	<description>Gerenciador de tarefas</description>
 	<properties>

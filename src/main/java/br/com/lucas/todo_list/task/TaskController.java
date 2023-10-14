@@ -76,12 +76,17 @@ public class TaskController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity delete(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id) {
+  public ResponseEntity delete(HttpServletRequest request, @PathVariable UUID id) {
 
     var task = this.taskRepository.findById(id).orElse(null);
+    var user_id = request.getAttribute("UserId");
 
     if (task == null) {
       return ResponseEntity.status(404).body("Task not found!");
+    }
+
+    if (!task.getIdUser().equals(user_id)) {
+      return ResponseEntity.status(401).body("User not authorized to update this task!");
     }
 
     this.taskRepository.delete(task);
